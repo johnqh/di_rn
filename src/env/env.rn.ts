@@ -5,7 +5,22 @@ import type {
   FirebaseConfig,
 } from '@sudobility/di';
 import type { Optional } from '@sudobility/types';
-import Config from 'react-native-config';
+// Lazily load react-native-config so the package can still be imported,
+// but fail loudly if the native module is missing. The app depends on it.
+let Config: Record<string, string | undefined> = {};
+try {
+  // Prefer default export but support both shapes.
+
+  const maybeConfig = require('react-native-config');
+  Config = (maybeConfig?.default ?? maybeConfig ?? {}) as Record<
+    string,
+    string | undefined
+  >;
+} catch (error) {
+  throw new Error(
+    `[di_rn] react-native-config not available; cannot initialize env provider: ${error}`
+  );
+}
 
 /**
  * React Native environment provider using react-native-config.
@@ -17,7 +32,9 @@ export class RNEnvProvider implements EnvProvider {
     defaultValue?: Optional<string>
   ): Optional<EnvironmentVariables[K] | string> {
     const value = Config[key as string];
-    return value ?? defaultValue ?? null;
+    return (value ?? defaultValue ?? null) as Optional<
+      EnvironmentVariables[K] | string
+    >;
   }
 
   getAll(): EnvironmentVariables {

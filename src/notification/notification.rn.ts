@@ -17,12 +17,12 @@ let AuthorizationStatusProvisional: number = 3;
 function getNotifee() {
   if (!notifeeModule) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mod = require('@notifee/react-native');
       notifeeModule = mod;
       AndroidImportanceValue = mod.AndroidImportance?.HIGH ?? 4;
       AuthorizationStatusAuthorized = mod.AuthorizationStatus?.AUTHORIZED ?? 1;
-      AuthorizationStatusProvisional = mod.AuthorizationStatus?.PROVISIONAL ?? 3;
+      AuthorizationStatusProvisional =
+        mod.AuthorizationStatus?.PROVISIONAL ?? 3;
     } catch (e) {
       console.warn('Notifee not available:', e);
     }
@@ -108,7 +108,8 @@ export class RNNotificationService implements NotificationService {
         notificationConfig.data = options.data;
       }
 
-      const notificationId = await notifee.displayNotification(notificationConfig);
+      const notificationId =
+        await notifee.displayNotification(notificationConfig);
 
       return {
         success: true,
@@ -128,7 +129,11 @@ export class RNNotificationService implements NotificationService {
   async requestPermission(): Promise<NotificationPermissionResult> {
     const notifee = getNotifee();
     if (!notifee) {
-      return { granted: false, permission: 'denied', error: 'Notifications not available' };
+      return {
+        granted: false,
+        permission: 'denied',
+        error: 'Notifications not available',
+      };
     }
 
     try {

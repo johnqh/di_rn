@@ -1,13 +1,29 @@
 import type { PlatformStorage, AdvancedPlatformStorage } from '@sudobility/di';
 import type { Optional } from '@sudobility/types';
 
-// Lazy load AsyncStorage to avoid crashes if native module is not linked
-let AsyncStorageModule: typeof import('@react-native-async-storage/async-storage').default | null = null;
+// Type for AsyncStorage interface
+interface AsyncStorageStatic {
+  setItem(key: string, value: string): Promise<void>;
+  getItem(key: string): Promise<string | null>;
+  removeItem(key: string): Promise<void>;
+  clear(): Promise<void>;
+  getAllKeys(): Promise<readonly string[]>;
+  multiRemove(keys: string[]): Promise<void>;
+}
 
-function getAsyncStorage() {
+// Lazy load AsyncStorage to avoid crashes if native module is not linked
+let AsyncStorageModule: AsyncStorageStatic | null = null;
+
+// For testing: allow injection of mock storage
+export function setAsyncStorageModule(
+  storage: AsyncStorageStatic | null
+): void {
+  AsyncStorageModule = storage;
+}
+
+function getAsyncStorage(): AsyncStorageStatic | null {
   if (!AsyncStorageModule) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mod = require('@react-native-async-storage/async-storage');
       AsyncStorageModule = mod.default ?? mod;
     } catch (e) {

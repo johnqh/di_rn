@@ -8,7 +8,9 @@
       "Bash(npm run lint:*)",
       "Bash(npm install)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nBump version to 0.1.1\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nBump version to 0.1.1\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(npm run lint:fix:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nBump version to 0.1.2 with lint and test fixes\n\n- Add require to eslint globals to fix no-undef errors\n- Fix NetInfoModule redeclare issue in network.rn.ts\n- Add dependency injection for AsyncStorage for testability\n- Update storage tests to use mock injection\n- Fix package.json exports order (types first)\n- Auto-fix prettier formatting issues\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

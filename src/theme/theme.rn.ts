@@ -8,7 +8,6 @@ let AppearanceModule: AppearanceType | null = null;
 function getAppearance(): AppearanceType | null {
   if (!AppearanceModule) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const RN = require('react-native');
       AppearanceModule = RN.Appearance;
     } catch (e) {

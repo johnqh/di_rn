@@ -7,21 +7,20 @@ import type {
 import type { PlatformNetwork } from '@sudobility/di';
 
 // Lazy load NetInfo to avoid crashes if native module is not linked
-type NetInfoModule = typeof import('@react-native-community/netinfo');
+type NetInfoModuleType = typeof import('@react-native-community/netinfo');
 type NetInfoState = import('@react-native-community/netinfo').NetInfoState;
-let NetInfoModule: NetInfoModule | null = null;
+let netInfoModule: NetInfoModuleType | null = null;
 
 function getNetInfo() {
-  if (!NetInfoModule) {
+  if (!netInfoModule) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mod = require('@react-native-community/netinfo');
-      NetInfoModule = mod;
+      netInfoModule = mod;
     } catch (e) {
       console.warn('NetInfo not available:', e);
     }
   }
-  return NetInfoModule?.default ?? null;
+  return netInfoModule?.default ?? null;
 }
 
 /**
@@ -196,7 +195,8 @@ export class RNNetworkService implements PlatformNetwork {
     if (!netInfo) return;
 
     // Get initial state
-    netInfo.fetch()
+    netInfo
+      .fetch()
       .then((state: NetInfoState) => {
         this.updateOnlineState(state);
       })

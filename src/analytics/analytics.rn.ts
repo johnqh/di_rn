@@ -6,13 +6,13 @@ import type {
 import type { Optional } from '@sudobility/types';
 
 // Lazy load Firebase analytics to avoid crashes if native module is not linked
-type FirebaseAnalyticsModule = typeof import('@react-native-firebase/analytics');
+type FirebaseAnalyticsModule =
+  typeof import('@react-native-firebase/analytics');
 let analyticsModule: FirebaseAnalyticsModule | null = null;
 
 function getAnalytics() {
   if (!analyticsModule) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mod = require('@react-native-firebase/analytics');
       analyticsModule = mod;
     } catch (e) {
@@ -48,11 +48,9 @@ export class RNAnalyticsClient implements AnalyticsClient {
         });
     } else {
       // It's just an AnalyticsEvent (string)
-      analytics
-        .logEvent(eventOrData)
-        .catch(() => {
-          // Silently handle analytics errors
-        });
+      analytics.logEvent(eventOrData).catch(() => {
+        // Silently handle analytics errors
+      });
     }
   }
 
@@ -65,11 +63,9 @@ export class RNAnalyticsClient implements AnalyticsClient {
     if (!analytics) return;
 
     for (const [key, value] of Object.entries(properties)) {
-      analytics
-        .setUserProperty(key, String(value))
-        .catch(() => {
-          // Silently handle analytics errors
-        });
+      analytics.setUserProperty(key, String(value)).catch(() => {
+        // Silently handle analytics errors
+      });
     }
   }
 
@@ -82,11 +78,9 @@ export class RNAnalyticsClient implements AnalyticsClient {
     const analytics = getAnalytics();
     if (!analytics) return;
 
-    analytics
-      .setUserId(userId ?? null)
-      .catch(() => {
-        // Silently handle analytics errors
-      });
+    analytics.setUserId(userId ?? null).catch(() => {
+      // Silently handle analytics errors
+    });
   }
 
   /**
@@ -97,11 +91,9 @@ export class RNAnalyticsClient implements AnalyticsClient {
     const analytics = getAnalytics();
     if (!analytics) return;
 
-    analytics
-      .setAnalyticsCollectionEnabled(enabled)
-      .catch(() => {
-        // Silently handle analytics errors
-      });
+    analytics.setAnalyticsCollectionEnabled(enabled).catch(() => {
+      // Silently handle analytics errors
+    });
   }
 
   /**

@@ -40,6 +40,7 @@ export default [
         RegExp: 'readonly',
         JSON: 'readonly',
         process: 'readonly',
+        require: 'readonly',
       },
     },
     plugins: {
