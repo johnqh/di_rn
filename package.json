@@ -1,14 +1,17 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "react-native": "./dist/index.js",
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {

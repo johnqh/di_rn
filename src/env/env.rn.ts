@@ -1,4 +1,3 @@
-import Config from 'react-native-config';
 import type {
   EnvProvider,
   AppConfig,
@@ -6,6 +5,7 @@ import type {
   FirebaseConfig,
 } from '@sudobility/di';
 import type { Optional } from '@sudobility/types';
+import Config from 'react-native-config';
 
 /**
  * React Native environment provider using react-native-config.

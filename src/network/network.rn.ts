@@ -1,4 +1,3 @@
-import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import type {
   NetworkClient,
   NetworkResponse,
@@ -6,6 +5,24 @@ import type {
   Optional,
 } from '@sudobility/types';
 import type { PlatformNetwork } from '@sudobility/di';
+
+// Lazy load NetInfo to avoid crashes if native module is not linked
+type NetInfoModule = typeof import('@react-native-community/netinfo');
+type NetInfoState = import('@react-native-community/netinfo').NetInfoState;
+let NetInfoModule: NetInfoModule | null = null;
+
+function getNetInfo() {
+  if (!NetInfoModule) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require('@react-native-community/netinfo');
+      NetInfoModule = mod;
+    } catch (e) {
+      console.warn('NetInfo not available:', e);
+    }
+  }
+  return NetInfoModule?.default ?? null;
+}
 
 /**
  * React Native Network Client implementing NetworkClient from @sudobility/types.
@@ -162,15 +179,25 @@ export class RNNetworkService implements PlatformNetwork {
   private isOnlineState: boolean = true;
   private listeners: Set<(isOnline: boolean) => void> = new Set();
   private unsubscribe: (() => void) | null = null;
+  private initialized: boolean = false;
 
   constructor() {
+    // Defer initialization to avoid native module issues at load time
+  }
+
+  private ensureInitialized(): void {
+    if (this.initialized) return;
+    this.initialized = true;
     this.initializeNetworkMonitoring();
   }
 
   private initializeNetworkMonitoring(): void {
+    const netInfo = getNetInfo();
+    if (!netInfo) return;
+
     // Get initial state
-    NetInfo.fetch()
-      .then((state) => {
+    netInfo.fetch()
+      .then((state: NetInfoState) => {
         this.updateOnlineState(state);
       })
       .catch(() => {
@@ -178,7 +205,7 @@ export class RNNetworkService implements PlatformNetwork {
       });
 
     // Subscribe to changes
-    this.unsubscribe = NetInfo.addEventListener((state) => {
+    this.unsubscribe = netInfo.addEventListener((state: NetInfoState) => {
       this.updateOnlineState(state);
     });
   }
@@ -202,10 +229,12 @@ export class RNNetworkService implements PlatformNetwork {
   }
 
   isOnline(): boolean {
+    this.ensureInitialized();
     return this.isOnlineState;
   }
 
   watchNetworkStatus(callback: (isOnline: boolean) => void): () => void {
+    this.ensureInitialized();
     this.listeners.add(callback);
 
     // Return cleanup function
@@ -217,8 +246,10 @@ export class RNNetworkService implements PlatformNetwork {
   /**
    * Get detailed network information.
    */
-  async getNetworkInfo(): Promise<NetInfoState> {
-    return NetInfo.fetch();
+  async getNetworkInfo(): Promise<NetInfoState | null> {
+    const netInfo = getNetInfo();
+    if (!netInfo) return null;
+    return netInfo.fetch();
   }
 
   /**

@@ -1,10 +1,27 @@
-import analytics from '@react-native-firebase/analytics';
 import type {
   AnalyticsClient,
   AnalyticsEventData,
   AnalyticsEvent,
 } from '@sudobility/di';
 import type { Optional } from '@sudobility/types';
+
+// Lazy load Firebase analytics to avoid crashes if native module is not linked
+type FirebaseAnalyticsModule = typeof import('@react-native-firebase/analytics');
+let analyticsModule: FirebaseAnalyticsModule | null = null;
+
+function getAnalytics() {
+  if (!analyticsModule) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require('@react-native-firebase/analytics');
+      analyticsModule = mod;
+    } catch (e) {
+      console.warn('Firebase analytics not available:', e);
+    }
+  }
+  const analytics = analyticsModule?.default ?? analyticsModule;
+  return typeof analytics === 'function' ? analytics() : null;
+}
 
 /**
  * React Native Analytics Client using Firebase Analytics.
@@ -18,18 +35,20 @@ export class RNAnalyticsClient implements AnalyticsClient {
    */
   trackEvent(eventOrData: AnalyticsEvent | AnalyticsEventData): void {
     if (!this.enabled) return;
+    const analytics = getAnalytics();
+    if (!analytics) return;
 
     // Check if it's an AnalyticsEventData object
     if (typeof eventOrData === 'object' && 'event' in eventOrData) {
       const { event, parameters } = eventOrData;
-      analytics()
+      analytics
         .logEvent(event, parameters as Record<string, string | number>)
         .catch(() => {
           // Silently handle analytics errors
         });
     } else {
       // It's just an AnalyticsEvent (string)
-      analytics()
+      analytics
         .logEvent(eventOrData)
         .catch(() => {
           // Silently handle analytics errors
@@ -42,9 +61,11 @@ export class RNAnalyticsClient implements AnalyticsClient {
    */
   setUserProperties(properties: Record<string, unknown>): void {
     if (!this.enabled) return;
+    const analytics = getAnalytics();
+    if (!analytics) return;
 
     for (const [key, value] of Object.entries(properties)) {
-      analytics()
+      analytics
         .setUserProperty(key, String(value))
         .catch(() => {
           // Silently handle analytics errors
@@ -58,8 +79,10 @@ export class RNAnalyticsClient implements AnalyticsClient {
   setUserId(userId: Optional<string>): void {
     this.userId = userId;
     if (!this.enabled) return;
+    const analytics = getAnalytics();
+    if (!analytics) return;
 
-    analytics()
+    analytics
       .setUserId(userId ?? null)
       .catch(() => {
         // Silently handle analytics errors
@@ -71,7 +94,10 @@ export class RNAnalyticsClient implements AnalyticsClient {
    */
   setAnalyticsEnabled(enabled: boolean): void {
     this.enabled = enabled;
-    analytics()
+    const analytics = getAnalytics();
+    if (!analytics) return;
+
+    analytics
       .setAnalyticsCollectionEnabled(enabled)
       .catch(() => {
         // Silently handle analytics errors
@@ -83,8 +109,10 @@ export class RNAnalyticsClient implements AnalyticsClient {
    */
   setCurrentScreen(screenName: string, screenClass?: Optional<string>): void {
     if (!this.enabled) return;
+    const analytics = getAnalytics();
+    if (!analytics) return;
 
-    analytics()
+    analytics
       .logScreenView({
         screen_name: screenName,
         screen_class: screenClass ?? screenName,

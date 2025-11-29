@@ -1,6 +1,21 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { PlatformStorage, AdvancedPlatformStorage } from '@sudobility/di';
 import type { Optional } from '@sudobility/types';
+
+// Lazy load AsyncStorage to avoid crashes if native module is not linked
+let AsyncStorageModule: typeof import('@react-native-async-storage/async-storage').default | null = null;
+
+function getAsyncStorage() {
+  if (!AsyncStorageModule) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require('@react-native-async-storage/async-storage');
+      AsyncStorageModule = mod.default ?? mod;
+    } catch (e) {
+      console.warn('AsyncStorage not available:', e);
+    }
+  }
+  return AsyncStorageModule;
+}
 
 /**
  * React Native storage implementation using AsyncStorage.
@@ -8,24 +23,34 @@ import type { Optional } from '@sudobility/types';
  */
 export class RNStorage implements PlatformStorage {
   async setItem(key: string, value: string): Promise<void> {
-    await AsyncStorage.setItem(key, value);
+    const storage = getAsyncStorage();
+    if (!storage) throw new Error('AsyncStorage not available');
+    await storage.setItem(key, value);
   }
 
   async getItem(key: string): Promise<Optional<string>> {
-    const value = await AsyncStorage.getItem(key);
+    const storage = getAsyncStorage();
+    if (!storage) return null;
+    const value = await storage.getItem(key);
     return value ?? null;
   }
 
   async removeItem(key: string): Promise<void> {
-    await AsyncStorage.removeItem(key);
+    const storage = getAsyncStorage();
+    if (!storage) return;
+    await storage.removeItem(key);
   }
 
   async clear(): Promise<void> {
-    await AsyncStorage.clear();
+    const storage = getAsyncStorage();
+    if (!storage) return;
+    await storage.clear();
   }
 
   async getAllKeys(): Promise<string[]> {
-    const keys = await AsyncStorage.getAllKeys();
+    const storage = getAsyncStorage();
+    if (!storage) return [];
+    const keys = await storage.getAllKeys();
     return [...keys];
   }
 }
@@ -113,7 +138,10 @@ export class AdvancedRNStorage implements AdvancedPlatformStorage {
     const keysToRemove = keys.filter((key) => regex.test(key));
 
     if (keysToRemove.length > 0) {
-      await AsyncStorage.multiRemove(keysToRemove);
+      const storage = getAsyncStorage();
+      if (storage) {
+        await storage.multiRemove(keysToRemove);
+      }
     }
   }
 }

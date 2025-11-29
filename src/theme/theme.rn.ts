@@ -1,5 +1,22 @@
-import { Appearance, ColorSchemeName } from 'react-native';
 import type { PlatformTheme } from '@sudobility/di';
+
+// Lazy load Appearance to avoid issues at module load time
+type AppearanceType = typeof import('react-native').Appearance;
+type ColorSchemeName = import('react-native').ColorSchemeName;
+let AppearanceModule: AppearanceType | null = null;
+
+function getAppearance(): AppearanceType | null {
+  if (!AppearanceModule) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const RN = require('react-native');
+      AppearanceModule = RN.Appearance;
+    } catch (e) {
+      console.warn('Appearance not available:', e);
+    }
+  }
+  return AppearanceModule;
+}
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type FontSize = 'small' | 'medium' | 'large';
@@ -11,15 +28,23 @@ export class RNThemeService implements PlatformTheme {
   private currentTheme: ThemeMode = 'system';
   private currentFontSize: FontSize = 'medium';
   private listeners: Set<(theme: ThemeMode) => void> = new Set();
-  private appearanceListener: ReturnType<
-    typeof Appearance.addChangeListener
-  > | null = null;
+  private appearanceListener: { remove: () => void } | null = null;
+  private initialized: boolean = false;
 
   constructor() {
+    // Defer initialization to avoid native module issues at load time
+  }
+
+  private ensureInitialized(): void {
+    if (this.initialized) return;
+    this.initialized = true;
     this.initializeAppearanceListener();
   }
 
   private initializeAppearanceListener(): void {
+    const Appearance = getAppearance();
+    if (!Appearance) return;
+
     this.appearanceListener = Appearance.addChangeListener(() => {
       if (this.currentTheme === 'system') {
         this.notifyListeners();
@@ -59,7 +84,8 @@ export class RNThemeService implements PlatformTheme {
    */
   getResolvedTheme(): 'light' | 'dark' {
     if (this.currentTheme === 'system') {
-      const systemTheme = Appearance.getColorScheme();
+      const Appearance = getAppearance();
+      const systemTheme = Appearance?.getColorScheme() ?? 'light';
       return systemTheme === 'dark' ? 'dark' : 'light';
     }
     return this.currentTheme;
@@ -69,7 +95,8 @@ export class RNThemeService implements PlatformTheme {
    * Get the system's current color scheme.
    */
   getSystemTheme(): ColorSchemeName {
-    return Appearance.getColorScheme();
+    const Appearance = getAppearance();
+    return Appearance?.getColorScheme() ?? 'light';
   }
 
   /**
@@ -97,6 +124,7 @@ export class RNThemeService implements PlatformTheme {
    * Watch for system theme changes.
    */
   watchSystemTheme(callback: (theme: ThemeMode) => void): () => void {
+    this.ensureInitialized();
     this.listeners.add(callback);
 
     // Return cleanup function

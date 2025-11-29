@@ -1,7 +1,3 @@
-import notifee, {
-  AndroidImportance,
-  AuthorizationStatus,
-} from '@notifee/react-native';
 import type {
   NotificationService,
   NotificationOptions,
@@ -11,6 +7,29 @@ import type {
 } from '@sudobility/di';
 import type { Optional } from '@sudobility/types';
 
+// Lazy load notifee to avoid crashes if native module is not linked
+type NotifeeModule = typeof import('@notifee/react-native');
+let notifeeModule: NotifeeModule | null = null;
+let AndroidImportanceValue: number = 4; // HIGH
+let AuthorizationStatusAuthorized: number = 1;
+let AuthorizationStatusProvisional: number = 3;
+
+function getNotifee() {
+  if (!notifeeModule) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require('@notifee/react-native');
+      notifeeModule = mod;
+      AndroidImportanceValue = mod.AndroidImportance?.HIGH ?? 4;
+      AuthorizationStatusAuthorized = mod.AuthorizationStatus?.AUTHORIZED ?? 1;
+      AuthorizationStatusProvisional = mod.AuthorizationStatus?.PROVISIONAL ?? 3;
+    } catch (e) {
+      console.warn('Notifee not available:', e);
+    }
+  }
+  return notifeeModule?.default ?? null;
+}
+
 /**
  * React Native Notification Service using Notifee.
  * Provides local notifications on iOS and Android.
@@ -18,24 +37,30 @@ import type { Optional } from '@sudobility/types';
 export class RNNotificationService implements NotificationService {
   private clickHandler: Optional<(data?: Optional<unknown>) => void> = null;
   private defaultChannelId: string = 'default';
+  private channelCreated: boolean = false;
 
   constructor() {
-    this.setupDefaultChannel();
+    // Defer channel setup to avoid native module issues at load time
   }
 
   /**
    * Set up the default notification channel for Android.
    */
-  private setupDefaultChannel(): void {
-    notifee
-      .createChannel({
+  private async ensureChannel(): Promise<void> {
+    if (this.channelCreated) return;
+    const notifee = getNotifee();
+    if (!notifee) return;
+
+    this.channelCreated = true;
+    try {
+      await notifee.createChannel({
         id: this.defaultChannelId,
         name: 'Default Notifications',
-        importance: AndroidImportance.HIGH,
-      })
-      .catch(() => {
-        // Silently handle channel creation errors
+        importance: AndroidImportanceValue,
       });
+    } catch {
+      // Silently handle channel creation errors
+    }
   }
 
   /**
@@ -53,10 +78,16 @@ export class RNNotificationService implements NotificationService {
     title: string,
     options?: Optional<NotificationOptions>
   ): Promise<NotificationResult> {
+    const notifee = getNotifee();
+    if (!notifee) {
+      return { success: false, error: 'Notifications not available' };
+    }
+
+    await this.ensureChannel();
+
     try {
-      const notificationConfig: Parameters<
-        typeof notifee.displayNotification
-      >[0] = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const notificationConfig: any = {
         title,
         android: {
           channelId: this.defaultChannelId,
@@ -73,13 +104,11 @@ export class RNNotificationService implements NotificationService {
       if (options?.body) {
         notificationConfig.body = options.body;
       }
-
       if (options?.data) {
-        notificationConfig.data = options.data as Record<string, string>;
+        notificationConfig.data = options.data;
       }
 
-      const notificationId =
-        await notifee.displayNotification(notificationConfig);
+      const notificationId = await notifee.displayNotification(notificationConfig);
 
       return {
         success: true,
@@ -97,11 +126,16 @@ export class RNNotificationService implements NotificationService {
    * Request notification permissions.
    */
   async requestPermission(): Promise<NotificationPermissionResult> {
+    const notifee = getNotifee();
+    if (!notifee) {
+      return { granted: false, permission: 'denied', error: 'Notifications not available' };
+    }
+
     try {
       const settings = await notifee.requestPermission();
       const granted =
-        settings.authorizationStatus === AuthorizationStatus.AUTHORIZED ||
-        settings.authorizationStatus === AuthorizationStatus.PROVISIONAL;
+        settings.authorizationStatus === AuthorizationStatusAuthorized ||
+        settings.authorizationStatus === AuthorizationStatusProvisional;
 
       return {
         granted,
@@ -168,6 +202,9 @@ export class RNNotificationService implements NotificationService {
    * Close a specific notification.
    */
   async closeNotification(notificationId: string): Promise<boolean> {
+    const notifee = getNotifee();
+    if (!notifee) return false;
+
     try {
       await notifee.cancelNotification(notificationId);
       return true;
@@ -180,6 +217,9 @@ export class RNNotificationService implements NotificationService {
    * Clear all notifications.
    */
   async clearAllNotifications(): Promise<boolean> {
+    const notifee = getNotifee();
+    if (!notifee) return false;
+
     try {
       await notifee.cancelAllNotifications();
       return true;
@@ -192,6 +232,8 @@ export class RNNotificationService implements NotificationService {
    * Get the badge count (iOS only).
    */
   async getBadgeCount(): Promise<number> {
+    const notifee = getNotifee();
+    if (!notifee) return 0;
     return notifee.getBadgeCount();
   }
 
@@ -199,6 +241,8 @@ export class RNNotificationService implements NotificationService {
    * Set the badge count (iOS only).
    */
   async setBadgeCount(count: number): Promise<void> {
+    const notifee = getNotifee();
+    if (!notifee) return;
     await notifee.setBadgeCount(count);
   }
 }
