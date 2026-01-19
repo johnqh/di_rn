@@ -1,78 +1,66 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "react-native": "./dist/index.js",
       "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./dist/index.d.ts"
     }
   },
-  "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
-    "clean": "rm -rf dist",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:ci": "vitest run --coverage",
-    "prepublishOnly": "npm run clean && npm run test && npm run build",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "format": "prettier --write src/**/*.{ts,tsx,js,jsx,json,md}"
-  },
   "files": [
-    "dist/**/*",
+    "dist",
     "README.md"
   ],
-  "keywords": [
-    "dependency-injection",
-    "di",
-    "react-native",
-    "web3"
-  ],
-  "author": "Sudobility Inc",
-  "license": "MIT",
-  "peerDependencies": {
-    "@sudobility/di": "^1.4.23",
-    "@sudobility/types": "^1.9.18",
-    "react": ">=18.0.0",
-    "react-native": ">=0.73.0",
-    "@react-native-async-storage/async-storage": "^1.21.0",
-    "@react-native-community/netinfo": "^11.2.1",
-    "@react-navigation/native": "^6.1.9",
-    "@react-native-firebase/analytics": "^18.7.0",
-    "@notifee/react-native": "^7.8.0",
-    "react-native-config": "^1.5.1"
+  "scripts": {
+    "build": "bunx tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "bunx tsc --noEmit",
+    "lint": "bunx eslint src",
+    "lint:fix": "bunx eslint src --fix",
+    "format": "bunx prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
+    "test": "echo 'No tests yet'",
+    "prepublishOnly": "bun run build"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/johnqh/di_rn.git"
+  "peerDependencies": {
+    "@sudobility/di": "^1.5.23",
+    "@sudobility/types": "^1.9.48",
+    "react": "^19.2.3",
+    "react-native": "^0.83.1",
+    "react-native-toast-message": "^2.3.3"
+  },
+  "peerDependenciesMeta": {
+    "@sudobility/auth_lib": {
+      "optional": true
+    },
+    "@sudobility/subscription_lib": {
+      "optional": true
+    }
   },
   "devDependencies": {
-    "@eslint/js": "^9.38.0",
-    "@sudobility/di": "^1.4.23",
-    "@sudobility/types": "^1.9.18",
-    "@types/node": "^24.10.1",
-    "@types/react": "^18.2.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
-    "@vitest/coverage-v8": "^3.2.4",
-    "eslint": "^9.38.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "@notifee/react-native": "^9.1.8",
+    "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-firebase/analytics": "^23.8.3",
+    "@react-native-firebase/app": "^23.8.3",
+    "@react-native-firebase/messaging": "^23.8.3",
+    "@react-native-firebase/remote-config": "^23.8.3",
+    "@react-navigation/native": "^7.1.28",
+    "@sudobility/auth_lib": "^0.0.18",
+    "@sudobility/di": "^1.5.23",
+    "@sudobility/subscription_lib": "^0.0.8",
+    "@sudobility/types": "^1.9.48",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.8",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.17"
   },
   "publishConfig": {
-    "access": "restricted"
-  }
+    "access": "public"
+  },
+  "license": "MIT"
 }

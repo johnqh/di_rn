@@ -104,7 +104,7 @@ function createFirebaseConfig(envProvider: RNEnvProvider): FirebaseConfig {
       (envProvider.get('VITE_FIREBASE_APP_ID') as string | undefined) ?? '',
     measurementId:
       (envProvider.get('VITE_FIREBASE_MEASUREMENT_ID') as string | undefined) ??
-      undefined,
+      '',
   };
 }
 

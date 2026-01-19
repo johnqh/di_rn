@@ -46,10 +46,15 @@ export class RNNetworkClient implements NetworkClient {
     try {
       const fetchOptions: RequestInit = {
         method: options?.method ?? 'GET',
-        headers: options?.headers ?? undefined,
-        body: this.prepareBody(options?.body),
         signal: controller.signal,
       };
+      if (options?.headers) {
+        fetchOptions.headers = options.headers;
+      }
+      const preparedBody = this.prepareBody(options?.body);
+      if (preparedBody !== undefined) {
+        fetchOptions.body = preparedBody;
+      }
 
       const response = await fetch(url, fetchOptions);
       clearTimeout(timeoutId);

@@ -104,3 +104,31 @@ export {
   resetNavigationService,
   rnNavigationService,
 } from './navigation/navigation.rn.js';
+
+// Info service (toast messages)
+export {
+  RNInfoService,
+  createRNInfoService,
+  initializeInfoService,
+  getInfoService,
+  resetInfoService,
+  mapInfoTypeToToastType,
+  type BannerState,
+  type BannerStateListener,
+  InfoBanner,
+  useInfoBanner,
+  type InfoBannerProps,
+} from './info/index.js';
+
+// Initialize (centralized app initialization)
+export {
+  initializeRNApp,
+  type RNAppInitOptions,
+  type RevenueCatConfig,
+  type RNFirebaseOptions,
+  FirebaseAnalyticsService,
+  initializeFirebaseAnalytics,
+  getAnalyticsService,
+  resetAnalyticsService,
+  type AnalyticsEventParams,
+} from './initialize/index.js';

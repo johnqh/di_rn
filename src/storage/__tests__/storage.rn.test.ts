@@ -1,11 +1,26 @@
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RNStorage, AdvancedRNStorage } from '../storage.rn.js';
+import {
+  RNStorage,
+  AdvancedRNStorage,
+  setAsyncStorageModule,
+} from '../storage.rn.js';
+
+// Create mock AsyncStorage
+const mockAsyncStorage = {
+  setItem: vi.fn(() => Promise.resolve()),
+  getItem: vi.fn(() => Promise.resolve(null)),
+  removeItem: vi.fn(() => Promise.resolve()),
+  clear: vi.fn(() => Promise.resolve()),
+  getAllKeys: vi.fn(() => Promise.resolve([] as readonly string[])),
+  multiRemove: vi.fn(() => Promise.resolve()),
+};
 
 describe('RNStorage', () => {
   let storage: RNStorage;
 
   beforeEach(() => {
+    // Inject mock before creating storage instance
+    setAsyncStorageModule(mockAsyncStorage);
     storage = new RNStorage();
     vi.clearAllMocks();
   });
@@ -13,20 +28,23 @@ describe('RNStorage', () => {
   describe('setItem', () => {
     it('should call AsyncStorage.setItem with correct arguments', async () => {
       await storage.setItem('testKey', 'testValue');
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith('testKey', 'testValue');
+      expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
+        'testKey',
+        'testValue'
+      );
     });
   });
 
   describe('getItem', () => {
     it('should return value from AsyncStorage', async () => {
-      (AsyncStorage.getItem as Mock).mockResolvedValueOnce('storedValue');
+      (mockAsyncStorage.getItem as Mock).mockResolvedValueOnce('storedValue');
       const result = await storage.getItem('testKey');
       expect(result).toBe('storedValue');
-      expect(AsyncStorage.getItem).toHaveBeenCalledWith('testKey');
+      expect(mockAsyncStorage.getItem).toHaveBeenCalledWith('testKey');
     });
 
     it('should return null when key does not exist', async () => {
-      (AsyncStorage.getItem as Mock).mockResolvedValueOnce(null);
+      (mockAsyncStorage.getItem as Mock).mockResolvedValueOnce(null);
       const result = await storage.getItem('nonexistent');
       expect(result).toBeNull();
     });
@@ -35,20 +53,23 @@ describe('RNStorage', () => {
   describe('removeItem', () => {
     it('should call AsyncStorage.removeItem', async () => {
       await storage.removeItem('testKey');
-      expect(AsyncStorage.removeItem).toHaveBeenCalledWith('testKey');
+      expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith('testKey');
     });
   });
 
   describe('clear', () => {
     it('should call AsyncStorage.clear', async () => {
       await storage.clear();
-      expect(AsyncStorage.clear).toHaveBeenCalled();
+      expect(mockAsyncStorage.clear).toHaveBeenCalled();
     });
   });
 
   describe('getAllKeys', () => {
     it('should return all keys from AsyncStorage', async () => {
-      (AsyncStorage.getAllKeys as Mock).mockResolvedValueOnce(['key1', 'key2']);
+      (mockAsyncStorage.getAllKeys as Mock).mockResolvedValueOnce([
+        'key1',
+        'key2',
+      ]);
       const result = await storage.getAllKeys();
       expect(result).toEqual(['key1', 'key2']);
     });
@@ -59,6 +80,8 @@ describe('AdvancedRNStorage', () => {
   let storage: AdvancedRNStorage;
 
   beforeEach(() => {
+    // Inject mock before creating storage instance
+    setAsyncStorageModule(mockAsyncStorage);
     storage = new AdvancedRNStorage();
     vi.clearAllMocks();
   });
@@ -70,7 +93,7 @@ describe('AdvancedRNStorage', () => {
 
       await storage.setItem('testKey', 'testValue', 60000);
 
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
         'testKey',
         JSON.stringify({
           value: 'testValue',
@@ -90,7 +113,7 @@ describe('AdvancedRNStorage', () => {
         ttl: 60000, // 60 second TTL
       };
 
-      (AsyncStorage.getItem as Mock).mockResolvedValueOnce(
+      (mockAsyncStorage.getItem as Mock).mockResolvedValueOnce(
         JSON.stringify(stored)
       );
       vi.spyOn(Date, 'now').mockReturnValue(now);
@@ -107,14 +130,14 @@ describe('AdvancedRNStorage', () => {
         ttl: 60000, // 60 second TTL (expired)
       };
 
-      (AsyncStorage.getItem as Mock).mockResolvedValueOnce(
+      (mockAsyncStorage.getItem as Mock).mockResolvedValueOnce(
         JSON.stringify(stored)
       );
       vi.spyOn(Date, 'now').mockReturnValue(now);
 
       const result = await storage.getItem('testKey');
       expect(result).toBeNull();
-      expect(AsyncStorage.removeItem).toHaveBeenCalledWith('testKey');
+      expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith('testKey');
     });
   });
 
@@ -124,7 +147,7 @@ describe('AdvancedRNStorage', () => {
         value: 'testValue',
         timestamp: Date.now(),
       };
-      (AsyncStorage.getItem as Mock).mockResolvedValueOnce(
+      (mockAsyncStorage.getItem as Mock).mockResolvedValueOnce(
         JSON.stringify(stored)
       );
 
@@ -133,7 +156,7 @@ describe('AdvancedRNStorage', () => {
     });
 
     it('should return false if item does not exist', async () => {
-      (AsyncStorage.getItem as Mock).mockResolvedValueOnce(null);
+      (mockAsyncStorage.getItem as Mock).mockResolvedValueOnce(null);
 
       const result = await storage.hasItem('testKey');
       expect(result).toBe(false);
@@ -142,7 +165,7 @@ describe('AdvancedRNStorage', () => {
 
   describe('clearPattern', () => {
     it('should remove items matching pattern', async () => {
-      (AsyncStorage.getAllKeys as Mock).mockResolvedValueOnce([
+      (mockAsyncStorage.getAllKeys as Mock).mockResolvedValueOnce([
         'user_123',
         'user_456',
         'config_abc',
@@ -150,7 +173,7 @@ describe('AdvancedRNStorage', () => {
 
       await storage.clearPattern('^user_');
 
-      expect(AsyncStorage.multiRemove).toHaveBeenCalledWith([
+      expect(mockAsyncStorage.multiRemove).toHaveBeenCalledWith([
         'user_123',
         'user_456',
       ]);
@@ -158,7 +181,7 @@ describe('AdvancedRNStorage', () => {
 
     it('should clear all if no pattern provided', async () => {
       await storage.clearPattern();
-      expect(AsyncStorage.clear).toHaveBeenCalled();
+      expect(mockAsyncStorage.clear).toHaveBeenCalled();
     });
   });
 });
