@@ -229,8 +229,52 @@ export class RNNetworkService implements PlatformNetwork {
     this.listeners.forEach((listener) => listener(isOnline));
   }
 
-  async request(url: string, options: RequestInit): Promise<Response> {
+  async request(url: string, options?: RequestInit): Promise<Response> {
     return fetch(url, options);
+  }
+
+  async get(
+    url: string,
+    options?: { headers?: Record<string, string>; signal?: AbortSignal }
+  ): Promise<Response> {
+    const init: RequestInit = { method: 'GET' };
+    if (options?.headers) init.headers = options.headers;
+    if (options?.signal) init.signal = options.signal;
+    return this.request(url, init);
+  }
+
+  async post(
+    url: string,
+    body?: unknown,
+    options?: { headers?: Record<string, string>; signal?: AbortSignal }
+  ): Promise<Response> {
+    const init: RequestInit = { method: 'POST' };
+    if (options?.headers) init.headers = options.headers;
+    if (options?.signal) init.signal = options.signal;
+    if (body) init.body = JSON.stringify(body);
+    return this.request(url, init);
+  }
+
+  async put(
+    url: string,
+    body?: unknown,
+    options?: { headers?: Record<string, string>; signal?: AbortSignal }
+  ): Promise<Response> {
+    const init: RequestInit = { method: 'PUT' };
+    if (options?.headers) init.headers = options.headers;
+    if (options?.signal) init.signal = options.signal;
+    if (body) init.body = JSON.stringify(body);
+    return this.request(url, init);
+  }
+
+  async delete(
+    url: string,
+    options?: { headers?: Record<string, string>; signal?: AbortSignal }
+  ): Promise<Response> {
+    const init: RequestInit = { method: 'DELETE' };
+    if (options?.headers) init.headers = options.headers;
+    if (options?.signal) init.signal = options.signal;
+    return this.request(url, init);
   }
 
   isOnline(): boolean {

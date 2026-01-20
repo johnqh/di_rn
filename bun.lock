@@ -12,8 +12,8 @@
         "@react-native-firebase/messaging": "^23.8.3",
         "@react-native-firebase/remote-config": "^23.8.3",
         "@react-navigation/native": "^7.1.28",
-        "@sudobility/auth_lib": "^0.0.18",
-        "@sudobility/di": "^1.5.23",
+        "@sudobility/auth_lib": "^0.0.19",
+        "@sudobility/di": "^1.5.25",
         "@sudobility/subscription_lib": "^0.0.10",
         "@sudobility/types": "^1.9.48",
         "@types/node": "^22.0.0",
@@ -27,7 +27,7 @@
         "vitest": "^4.0.17",
       },
       "peerDependencies": {
-        "@sudobility/di": "^1.5.23",
+        "@sudobility/di": "^1.5.25",
         "@sudobility/types": "^1.9.48",
         "react": "^19.2.3",
         "react-native": "^0.83.1",
@@ -422,9 +422,9 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@sudobility/auth_lib": ["@sudobility/auth_lib@0.0.18", "", { "peerDependencies": { "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/auth": ">=18.0.0", "@sudobility/di": "^1.5.23", "@sudobility/types": "^1.9.48", "@tanstack/react-query": "^5.0.0", "firebase": "^12.7.0", "react": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@react-native-firebase/app", "@react-native-firebase/auth", "firebase"] }, "sha512-RhQ0/FoGg2oa4LhOI2cWl8AuckAaE1mcaahu2fcSzxft7RmP6zb1O+gkICWfP9d5egoPnLy2lDrsMDahKTBZ1Q=="],
+    "@sudobility/auth_lib": ["@sudobility/auth_lib@0.0.19", "", { "peerDependencies": { "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/auth": ">=18.0.0", "@sudobility/di": "^1.5.25", "@sudobility/types": "^1.9.48", "@tanstack/react-query": "^5.0.0", "firebase": "^12.7.0", "react": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["@react-native-firebase/app", "@react-native-firebase/auth", "firebase"] }, "sha512-nr85yPkmhBy0snPT94YecufA77iVSy77WY1/YWe+r35YpV81ORyOFIFeOC3WRLzXreBkrYOaOjIKv4P+EP4Ldw=="],
 
-    "@sudobility/di": ["@sudobility/di@1.5.23", "", { "peerDependencies": { "@notifee/react-native": ">=7.0.0", "@react-native-async-storage/async-storage": ">=1.19.0", "@react-native-community/netinfo": ">=9.0.0", "@react-native-firebase/analytics": ">=18.0.0", "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/messaging": ">=18.0.0", "@react-native-firebase/remote-config": ">=18.0.0", "@sudobility/types": "^1.9.48", "firebase": ">=10.0.0", "react": ">=18.0.0", "react-native": ">=0.70.0" }, "optionalPeers": ["@notifee/react-native", "@react-native-async-storage/async-storage", "@react-native-community/netinfo", "@react-native-firebase/analytics", "@react-native-firebase/app", "@react-native-firebase/messaging", "@react-native-firebase/remote-config", "firebase", "react-native"] }, "sha512-tbcyoPo2aGwyxpA0P6rb5tbe577sBmPKlTiUscfaXkfkL3r7jYNKqA9QIJ0hYiJfZQEvFsXLiBgsDUF/mTpiIw=="],
+    "@sudobility/di": ["@sudobility/di@1.5.25", "", { "peerDependencies": { "@notifee/react-native": ">=7.0.0", "@react-native-async-storage/async-storage": ">=1.19.0", "@react-native-community/netinfo": ">=9.0.0", "@react-native-firebase/analytics": ">=18.0.0", "@react-native-firebase/app": ">=18.0.0", "@react-native-firebase/messaging": ">=18.0.0", "@react-native-firebase/remote-config": ">=18.0.0", "@sudobility/types": "^1.9.48", "firebase": ">=10.0.0", "react": ">=18.0.0", "react-native": ">=0.70.0" }, "optionalPeers": ["@notifee/react-native", "@react-native-async-storage/async-storage", "@react-native-community/netinfo", "@react-native-firebase/analytics", "@react-native-firebase/app", "@react-native-firebase/messaging", "@react-native-firebase/remote-config", "firebase", "react-native"] }, "sha512-SJjo/zDiK6UlC35JHOzW3BIfPAwXjTRO5NfKc3mTqiVqekc0F8IX9IylUfXIWLbWYp13jOGTA3FY3huQnPBxWA=="],
 
     "@sudobility/subscription_lib": ["@sudobility/subscription_lib@0.0.10", "", { "peerDependencies": { "@revenuecat/purchases-js": "^1.0.0", "react": "^18.0.0 || ^19.0.0", "react-native-purchases": ">=7.0.0" }, "optionalPeers": ["@revenuecat/purchases-js", "react-native-purchases"] }, "sha512-Y4wtIFvzzr/R93ymjC7GS65vatsPLMj8AHWg5EW3gP7c7tm2WyD/VwfFIj23+mQ9SVAqxS7T5/uPnoQsV3M4GQ=="],
 
