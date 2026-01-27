@@ -35,7 +35,7 @@
 import {
   type InfoInterface,
   initializeInfoService as initializeDiInfoService,
-} from '@sudobility/di';
+} from '@sudobility/di/interfaces';
 import { InfoType, type Optional } from '@sudobility/types';
 
 /**

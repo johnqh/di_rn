@@ -4,7 +4,7 @@ import type {
   NotificationResult,
   NotificationCapabilities,
   NotificationPermissionResult,
-} from '@sudobility/di';
+} from '@sudobility/di/interfaces';
 import type { Optional } from '@sudobility/types';
 
 // Lazy load notifee to avoid crashes if native module is not linked

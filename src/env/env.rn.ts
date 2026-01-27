@@ -3,7 +3,7 @@ import type {
   AppConfig,
   EnvironmentVariables,
   FirebaseConfig,
-} from '@sudobility/di';
+} from '@sudobility/di/interfaces';
 import type { Optional } from '@sudobility/types';
 // Lazily load react-native-config so the package can still be imported,
 // but fail loudly if the native module is missing. The app depends on it.

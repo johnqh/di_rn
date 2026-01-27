@@ -2,7 +2,7 @@ import type {
   AnalyticsClient,
   AnalyticsEventData,
   AnalyticsEvent,
-} from '@sudobility/di';
+} from '@sudobility/di/interfaces';
 import type { Optional } from '@sudobility/types';
 
 // Lazy load Firebase analytics to avoid crashes if native module is not linked

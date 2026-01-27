@@ -4,7 +4,7 @@ import type {
   NetworkRequestOptions,
   Optional,
 } from '@sudobility/types';
-import type { PlatformNetwork } from '@sudobility/di';
+import type { PlatformNetwork } from '@sudobility/di/interfaces';
 
 // Lazy load NetInfo to avoid crashes if native module is not linked
 type NetInfoModuleType = typeof import('@react-native-community/netinfo');

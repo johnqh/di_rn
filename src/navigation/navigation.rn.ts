@@ -6,7 +6,7 @@ import type {
   NavigationService,
   NavigationState,
   NavigationOptions,
-} from '@sudobility/di';
+} from '@sudobility/di/interfaces';
 import type { Optional } from '@sudobility/types';
 
 /**

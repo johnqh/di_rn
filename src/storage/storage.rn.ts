@@ -1,4 +1,7 @@
-import type { PlatformStorage, AdvancedPlatformStorage } from '@sudobility/di';
+import type {
+  PlatformStorage,
+  AdvancedPlatformStorage,
+} from '@sudobility/di/interfaces';
 import type { Optional } from '@sudobility/types';
 
 // Type for AsyncStorage interface

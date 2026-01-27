@@ -1,4 +1,8 @@
-import type { Logger, LoggerProvider, LogType } from '@sudobility/di';
+import type {
+  Logger,
+  LoggerProvider,
+  LogType,
+} from '@sudobility/di/interfaces';
 
 /**
  * React Native Logger implementation.

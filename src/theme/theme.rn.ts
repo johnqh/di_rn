@@ -1,4 +1,4 @@
-import type { PlatformTheme } from '@sudobility/di';
+import type { PlatformTheme } from '@sudobility/di/interfaces';
 
 // Lazy load Appearance to avoid issues at module load time
 type AppearanceType = typeof import('react-native').Appearance;

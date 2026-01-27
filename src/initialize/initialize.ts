@@ -4,11 +4,7 @@
  * that sets up all DI services in the correct order.
  */
 
-import {
-  initializeFirebaseService,
-  getFirebaseService,
-  initializeNetworkService as initializeDiNetworkService,
-} from '@sudobility/di/rn';
+import { initializeNetworkService as initializeDiNetworkService } from '@sudobility/di/rn';
 import { initializeStorageService } from '../index.js';
 import { initializeInfoService } from '../info/index.js';
 import {
@@ -26,7 +22,7 @@ export interface AnalyticsEventParams {
 
 /**
  * Firebase Analytics Service class for React Native
- * Uses the DI Firebase service for analytics tracking.
+ * Uses the RNAnalyticsClient for analytics tracking.
  */
 export class FirebaseAnalyticsService {
   /**
@@ -34,15 +30,16 @@ export class FirebaseAnalyticsService {
    */
   trackEvent(eventName: string, params?: AnalyticsEventParams): void {
     try {
-      const service = getFirebaseService();
-      if (service.analytics.isSupported()) {
-        service.analytics.logEvent(eventName, {
+      const client = getAnalyticsClient();
+      client.trackEvent({
+        event: eventName as import('@sudobility/types').AnalyticsEvent,
+        parameters: {
           ...params,
           timestamp: Date.now(),
-        });
-      }
+        },
+      });
     } catch {
-      // Firebase service not initialized
+      // Analytics client not initialized
     }
   }
 
@@ -50,10 +47,12 @@ export class FirebaseAnalyticsService {
    * Track a screen view
    */
   trackScreenView(screenName: string, screenClass?: string): void {
-    this.trackEvent('screen_view', {
-      screen_name: screenName,
-      screen_class: screenClass ?? screenName,
-    });
+    try {
+      const client = getAnalyticsClient();
+      client.setCurrentScreen(screenName, screenClass);
+    } catch {
+      // Analytics client not initialized
+    }
   }
 
   /**
@@ -96,8 +95,8 @@ export class FirebaseAnalyticsService {
    */
   isEnabled(): boolean {
     try {
-      const service = getFirebaseService();
-      return service.analytics.isSupported();
+      const client = getAnalyticsClient();
+      return client.isEnabled();
     } catch {
       return false;
     }
@@ -212,43 +211,37 @@ export async function initializeRNApp(
     enableFirebaseAuth = false,
     revenueCatConfig,
     initializeI18n,
-    firebaseOptions,
+    // firebaseOptions is kept for API compatibility but Firebase is configured via native files
   } = options;
 
   // 1. Initialize storage service
   initializeStorageService();
 
-  // 2. Initialize Firebase DI service (analytics, remote config, etc.)
-  // Note: RN Firebase is configured via native files, not JS config
-  initializeFirebaseService(firebaseOptions);
+  // 2. Initialize Analytics client singleton (uses Firebase Analytics via RN Firebase native module)
+  initializeAnalyticsClient();
 
   // 3. Initialize Firebase Analytics singleton (higher-level wrapper)
   const analytics = initializeFirebaseAnalytics();
 
-  // 4. Initialize Analytics client singleton (lower-level)
-  initializeAnalyticsClient();
-
-  // 5. Initialize Auth and Network service
+  // 4. Initialize Firebase Auth (if enabled)
   if (enableFirebaseAuth) {
     try {
       // Dynamically import auth_lib to avoid hard dependency
       // The react-native export path will be resolved automatically
       const authLib = await import('@sudobility/auth_lib');
       authLib.initializeFirebaseAuth();
-      // Use auth_lib's FirebaseAuthNetworkService which has 401 retry and 403 logout logic
-      initializeDiNetworkService(new authLib.FirebaseAuthNetworkService());
     } catch (error) {
       console.error(
         '[di_rn] Failed to initialize Firebase Auth. Make sure @sudobility/auth_lib is installed.',
         error
       );
-      // Fall back to basic network service
-      initializeDiNetworkService();
     }
-  } else {
-    // Initialize basic network service without auth retry logic
-    initializeDiNetworkService();
   }
+
+  // 5. Initialize network service (for online/offline status detection)
+  // Note: For authenticated API calls, apps should use FirebaseAuthNetworkService directly
+  // from @sudobility/auth_lib, which provides automatic token refresh on 401 responses.
+  initializeDiNetworkService();
 
   // 6. Initialize info service
   initializeInfoService();

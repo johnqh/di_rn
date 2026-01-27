@@ -1,4 +1,4 @@
-import type { StorageService } from '@sudobility/di';
+import type { StorageService } from '@sudobility/di/interfaces';
 import type { StorageType, Optional } from '@sudobility/types';
 import { RNStorage } from './storage.rn.js';
 
