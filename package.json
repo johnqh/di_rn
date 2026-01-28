@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
   "main": "./dist/index.js",
@@ -56,7 +56,7 @@
     "@react-native-firebase/messaging": "^23.8.3",
     "@react-native-firebase/remote-config": "^23.8.3",
     "@react-navigation/native": "^7.1.28",
-    "@sudobility/auth_lib": "^0.0.27",
+    "@sudobility/auth_lib": "^0.0.29",
     "@sudobility/di": "^1.5.30",
     "@sudobility/subscription_lib": "^0.0.12",
     "@sudobility/types": "^1.9.48",
