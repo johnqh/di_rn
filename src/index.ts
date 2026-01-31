@@ -55,15 +55,6 @@ export type {
   FirebaseConfig,
 } from './env/env.rn.js';
 
-// Analytics
-export {
-  RNAnalyticsClient,
-  getAnalyticsClient,
-  initializeAnalyticsClient,
-  resetAnalyticsClient,
-  rnAnalyticsClient,
-} from './analytics/analytics.rn.js';
-
 // Notifications
 export {
   RNNotificationService,
@@ -132,3 +123,23 @@ export {
   resetAnalyticsService,
   type AnalyticsEventParams,
 } from './initialize/index.js';
+
+// Re-export Firebase from @sudobility/di/rn for convenience
+// This allows existing code importing from di_rn to continue working
+export {
+  RNFirebaseService,
+  RNFirebaseAnalyticsService,
+  createRNFirebaseService,
+  getFirebaseService,
+  initializeFirebaseService,
+  resetFirebaseService,
+} from '@sudobility/di/rn';
+
+// Re-export the low-level analytics client from @sudobility/di/rn
+export {
+  RNAnalyticsClient,
+  getAnalyticsClient,
+  initializeAnalyticsClient,
+  resetAnalyticsClient,
+  rnAnalyticsClient,
+} from '@sudobility/di/rn';

@@ -18,7 +18,4 @@ export {
   getAnalyticsService,
   resetAnalyticsService,
   type AnalyticsEventParams,
-
-  // Low-level analytics access
-  getAnalyticsClient,
 } from './initialize.js';

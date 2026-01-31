@@ -4,137 +4,27 @@
  * that sets up all DI services in the correct order.
  */
 
-import { initializeNetworkService as initializeDiNetworkService } from '@sudobility/di/rn';
+import {
+  initializeNetworkService as initializeDiNetworkService,
+  initializeFirebaseService,
+  FirebaseAnalyticsService,
+  initializeFirebaseAnalytics,
+  getAnalyticsService,
+  resetAnalyticsService,
+  type AnalyticsEventParams,
+  type FirebaseInitOptions,
+} from '@sudobility/di/rn';
 import { initializeStorageService } from '../index.js';
 import { initializeInfoService } from '../info/index.js';
-import {
-  initializeAnalyticsClient,
-  getAnalyticsClient,
-} from '../analytics/analytics.rn.js';
 
-// ============================================================================
-// Firebase Analytics Service (higher-level wrapper)
-// ============================================================================
-
-export interface AnalyticsEventParams {
-  [key: string]: unknown;
-}
-
-/**
- * Firebase Analytics Service class for React Native
- * Uses the RNAnalyticsClient for analytics tracking.
- */
-export class FirebaseAnalyticsService {
-  /**
-   * Track a custom event
-   */
-  trackEvent(eventName: string, params?: AnalyticsEventParams): void {
-    try {
-      const client = getAnalyticsClient();
-      client.trackEvent({
-        event: eventName as import('@sudobility/types').AnalyticsEvent,
-        parameters: {
-          ...params,
-          timestamp: Date.now(),
-        },
-      });
-    } catch {
-      // Analytics client not initialized
-    }
-  }
-
-  /**
-   * Track a screen view
-   */
-  trackScreenView(screenName: string, screenClass?: string): void {
-    try {
-      const client = getAnalyticsClient();
-      client.setCurrentScreen(screenName, screenClass);
-    } catch {
-      // Analytics client not initialized
-    }
-  }
-
-  /**
-   * Track a button click
-   */
-  trackButtonClick(buttonName: string, params?: AnalyticsEventParams): void {
-    this.trackEvent('button_click', {
-      button_name: buttonName,
-      ...params,
-    });
-  }
-
-  /**
-   * Track a link click
-   */
-  trackLinkClick(
-    linkUrl: string,
-    linkText?: string,
-    params?: AnalyticsEventParams
-  ): void {
-    this.trackEvent('link_click', {
-      link_url: linkUrl,
-      link_text: linkText,
-      ...params,
-    });
-  }
-
-  /**
-   * Track an error
-   */
-  trackError(errorMessage: string, errorCode?: string): void {
-    this.trackEvent('error_occurred', {
-      error_message: errorMessage,
-      error_code: errorCode,
-    });
-  }
-
-  /**
-   * Check if analytics is enabled
-   */
-  isEnabled(): boolean {
-    try {
-      const client = getAnalyticsClient();
-      return client.isEnabled();
-    } catch {
-      return false;
-    }
-  }
-}
-
-// Singleton instance
-let analyticsService: FirebaseAnalyticsService | null = null;
-
-/**
- * Initialize the Firebase Analytics service singleton
- */
-export function initializeFirebaseAnalytics(): FirebaseAnalyticsService {
-  if (!analyticsService) {
-    analyticsService = new FirebaseAnalyticsService();
-  }
-  return analyticsService;
-}
-
-/**
- * Get the Firebase Analytics service singleton
- * @throws Error if not initialized
- */
-export function getAnalyticsService(): FirebaseAnalyticsService {
-  if (!analyticsService) {
-    throw new Error(
-      'Analytics service not initialized. Call initializeFirebaseAnalytics() first.'
-    );
-  }
-  return analyticsService;
-}
-
-/**
- * Reset the analytics service (for testing)
- */
-export function resetAnalyticsService(): void {
-  analyticsService = null;
-}
+// Re-export analytics types and functions from di for convenience
+export {
+  FirebaseAnalyticsService,
+  initializeFirebaseAnalytics,
+  getAnalyticsService,
+  resetAnalyticsService,
+  type AnalyticsEventParams,
+};
 
 // ============================================================================
 // RN App Initialization
@@ -195,11 +85,10 @@ export interface RNAppInitOptions {
  * 1. Storage service
  * 2. Firebase DI service (analytics, remote config, etc.)
  * 3. Firebase Analytics singleton
- * 4. Analytics client singleton
- * 5. Firebase Auth + Network (if enableFirebaseAuth)
- * 6. Info service
- * 7. RevenueCat (if revenueCatConfig provided)
- * 8. i18n (if provided)
+ * 4. Firebase Auth + Network (if enableFirebaseAuth)
+ * 5. Info service
+ * 6. RevenueCat (if revenueCatConfig provided)
+ * 7. i18n (if provided)
  *
  * @param options - Configuration options
  * @returns The initialized analytics service
@@ -211,14 +100,14 @@ export async function initializeRNApp(
     enableFirebaseAuth = false,
     revenueCatConfig,
     initializeI18n,
-    // firebaseOptions is kept for API compatibility but Firebase is configured via native files
+    firebaseOptions,
   } = options;
 
   // 1. Initialize storage service
   initializeStorageService();
 
-  // 2. Initialize Analytics client singleton (uses Firebase Analytics via RN Firebase native module)
-  initializeAnalyticsClient();
+  // 2. Initialize Firebase DI service (configured via native files, options just enable/disable features)
+  initializeFirebaseService(firebaseOptions as FirebaseInitOptions);
 
   // 3. Initialize Firebase Analytics singleton (higher-level wrapper)
   const analytics = initializeFirebaseAnalytics();
@@ -279,8 +168,3 @@ export async function initializeRNApp(
 
   return analytics;
 }
-
-/**
- * Get low-level analytics client for direct access
- */
-export { getAnalyticsClient };
