@@ -145,9 +145,9 @@ export async function initializeRNApp(
         : (revenueCatConfig.apiKeySandbox ?? revenueCatConfig.apiKey);
 
       // Use the RN adapter
-      subscriptionLib.configureRevenueCatAdapter(apiKey);
+      subscriptionLib.configureRevenueCatRNAdapter(apiKey);
       subscriptionLib.initializeSubscription({
-        adapter: subscriptionLib.createRevenueCatAdapter(),
+        adapter: subscriptionLib.createRevenueCatRNAdapter(),
         freeTier: revenueCatConfig.freeTierPackage ?? {
           packageId: 'free',
           name: 'Free',
