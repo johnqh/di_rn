@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
   "main": "./dist/index.js",
@@ -47,7 +47,7 @@
     "@notifee/react-native": "^9.1.8",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/native": "^7.1.28",
-    "@sudobility/auth_lib": "^0.0.44",
+    "@sudobility/auth_lib": "^0.0.46",
     "@sudobility/di": "^1.5.35",
     "@sudobility/subscription_lib": "^0.0.14",
     "@sudobility/types": "^1.9.50",
