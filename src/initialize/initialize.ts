@@ -65,9 +65,6 @@ export interface RNFirebaseOptions {
  * Configuration options for RN app initialization
  */
 export interface RNAppInitOptions {
-  /** Enable Firebase Auth and auth-aware network service */
-  enableFirebaseAuth?: boolean;
-
   /** RevenueCat configuration - if provided, enables RevenueCat */
   revenueCatConfig?: RevenueCatConfig;
 
@@ -85,10 +82,13 @@ export interface RNAppInitOptions {
  * 1. Storage service
  * 2. Firebase DI service (analytics, remote config, etc.)
  * 3. Firebase Analytics singleton
- * 4. Firebase Auth + Network (if enableFirebaseAuth)
+ * 4. Network service
  * 5. Info service
  * 6. RevenueCat (if revenueCatConfig provided)
  * 7. i18n (if provided)
+ *
+ * Note: Firebase Auth is NOT initialized here. Apps using Firebase Auth should
+ * call initializeFirebaseAuth() from @sudobility/auth_lib separately.
  *
  * @param options - Configuration options
  * @returns The initialized analytics service
@@ -96,12 +96,7 @@ export interface RNAppInitOptions {
 export async function initializeRNApp(
   options: RNAppInitOptions = {}
 ): Promise<FirebaseAnalyticsService> {
-  const {
-    enableFirebaseAuth = false,
-    revenueCatConfig,
-    initializeI18n,
-    firebaseOptions,
-  } = options;
+  const { revenueCatConfig, initializeI18n, firebaseOptions } = options;
 
   // 1. Initialize storage service
   initializeStorageService();
@@ -112,30 +107,15 @@ export async function initializeRNApp(
   // 3. Initialize Firebase Analytics singleton (higher-level wrapper)
   const analytics = initializeFirebaseAnalytics();
 
-  // 4. Initialize Firebase Auth (if enabled)
-  if (enableFirebaseAuth) {
-    try {
-      // Dynamically import auth_lib to avoid hard dependency
-      // The react-native export path will be resolved automatically
-      const authLib = await import('@sudobility/auth_lib');
-      authLib.initializeFirebaseAuth();
-    } catch (error) {
-      console.error(
-        '[di_rn] Failed to initialize Firebase Auth. Make sure @sudobility/auth_lib is installed.',
-        error
-      );
-    }
-  }
-
-  // 5. Initialize network service (for online/offline status detection)
+  // 4. Initialize network service (for online/offline status detection)
   // Note: For authenticated API calls, apps should use FirebaseAuthNetworkService directly
   // from @sudobility/auth_lib, which provides automatic token refresh on 401 responses.
   initializeDiNetworkService();
 
-  // 6. Initialize info service
+  // 5. Initialize info service
   initializeInfoService();
 
-  // 7. Initialize RevenueCat subscription (if config provided)
+  // 6. Initialize RevenueCat subscription (if config provided)
   if (revenueCatConfig) {
     try {
       const subscriptionLib = await import('@sudobility/subscription_lib');
@@ -161,7 +141,7 @@ export async function initializeRNApp(
     }
   }
 
-  // 8. Initialize i18n (app-specific)
+  // 7. Initialize i18n (app-specific)
   if (initializeI18n) {
     await initializeI18n();
   }

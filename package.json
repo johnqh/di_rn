@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
   "main": "./dist/index.js",
@@ -35,9 +35,6 @@
     "react-native-toast-message": "^2.3.3"
   },
   "peerDependenciesMeta": {
-    "@sudobility/auth_lib": {
-      "optional": true
-    },
     "@sudobility/subscription_lib": {
       "optional": true
     }
@@ -47,7 +44,6 @@
     "@notifee/react-native": "^9.1.8",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/native": "^7.1.28",
-    "@sudobility/auth_lib": "^0.0.50",
     "@sudobility/di": "^1.5.38",
     "@sudobility/subscription_lib": "^0.0.16",
     "@sudobility/types": "^1.9.53",
