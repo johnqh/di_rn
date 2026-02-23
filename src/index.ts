@@ -29,6 +29,7 @@ export {
   NetworkError,
   rnNetworkClient,
   rnNetworkService,
+  setNetInfoModule,
 } from './network/network.rn.js';
 
 export {
@@ -62,6 +63,7 @@ export {
   initializeNotificationService,
   resetNotificationService,
   rnNotificationService,
+  setNotifeeModule,
 } from './notification/notification.rn.js';
 
 // Theme
@@ -71,6 +73,7 @@ export {
   initializeThemeService,
   resetThemeService,
   rnThemeService,
+  setAppearanceModule,
 } from './theme/theme.rn.js';
 
 export type { ThemeMode, FontSize } from './theme/theme.rn.js';
@@ -141,3 +144,10 @@ export {
   resetAnalyticsClient,
   rnAnalyticsClient,
 } from '@sudobility/di/rn';
+
+// Diagnostics
+export {
+  checkNativeModules,
+  type NativeModuleStatus,
+  type NativeModuleDiagnostics,
+} from './diagnostics.js';

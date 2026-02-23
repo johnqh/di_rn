@@ -1,5 +1,8 @@
 import { vi } from 'vitest';
 
+// Make __DEV__ available globally for tests
+(globalThis as Record<string, unknown>).__DEV__ = true;
+
 // Mock AsyncStorage
 vi.mock('@react-native-async-storage/async-storage', () => ({
   default: {
@@ -83,14 +86,50 @@ vi.mock('react-native', () => ({
   },
 }));
 
+// Mock @react-navigation/native
+vi.mock('@react-navigation/native', () => ({
+  // Provide types only, actual navigation ref is injected in tests
+}));
+
+// Mock @sudobility/di/interfaces
+vi.mock('@sudobility/di/interfaces', () => ({
+  initializeInfoService: vi.fn(),
+}));
+
+// Mock @sudobility/di/rn
+vi.mock('@sudobility/di/rn', () => ({
+  initializeNetworkService: vi.fn(),
+  initializeFirebaseService: vi.fn(),
+  FirebaseAnalyticsService: class MockFirebaseAnalyticsService {},
+  initializeFirebaseAnalytics: vi.fn(
+    () => new (class MockFirebaseAnalyticsService {})()
+  ),
+  getAnalyticsService: vi.fn(),
+  resetAnalyticsService: vi.fn(),
+}));
+
+// Mock @sudobility/types
+vi.mock('@sudobility/types', async () => {
+  const actual = await vi.importActual('@sudobility/types');
+  return {
+    ...actual,
+  };
+});
+
+// Mock @sudobility/components-rn
+vi.mock('@sudobility/components-rn', () => ({
+  Banner: () => null,
+}));
+
 // Mock global fetch
 global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     status: 200,
+    statusText: 'OK',
     json: () => Promise.resolve({}),
     text: () => Promise.resolve(''),
     blob: () => Promise.resolve(new Blob()),
-    headers: new Headers(),
+    headers: new Headers({ 'content-type': 'application/json' }),
   } as Response)
 );

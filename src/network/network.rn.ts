@@ -10,11 +10,39 @@ import type { PlatformNetwork } from '@sudobility/di/interfaces';
 type NetInfoModuleType = typeof import('@react-native-community/netinfo');
 type NetInfoState = import('@react-native-community/netinfo').NetInfoState;
 let netInfoModule: NetInfoModuleType | null = null;
+let netInfoOverride: NetInfoModuleType['default'] | null = null;
 
-function getNetInfo() {
+/**
+ * Inject a mock or custom NetInfo module for testing.
+ *
+ * @param netInfo - The NetInfo default export to use, or `null` to reset and use the real module.
+ *
+ * @example
+ * ```ts
+ * // In tests:
+ * setNetInfoModule(mockNetInfo);
+ * ```
+ */
+export function setNetInfoModule(
+  netInfo: NetInfoModuleType['default'] | null
+): void {
+  netInfoOverride = netInfo;
+}
+
+/**
+ * Lazily load and return the NetInfo native module's default export.
+ *
+ * Uses `require()` inside a try-catch to avoid crashes when the native module
+ * is not linked. The module is cached after the first successful load.
+ *
+ * @returns The NetInfo default export, or `null` if not available.
+ */
+function getNetInfo(): NetInfoModuleType['default'] | null {
+  if (netInfoOverride) return netInfoOverride;
+
   if (!netInfoModule) {
     try {
-      const mod = require('@react-native-community/netinfo');
+      const mod: NetInfoModuleType = require('@react-native-community/netinfo');
       netInfoModule = mod;
     } catch (e) {
       console.warn('NetInfo not available:', e);
@@ -24,16 +52,51 @@ function getNetInfo() {
 }
 
 /**
- * React Native Network Client implementing NetworkClient from @sudobility/types.
- * Uses React Native's built-in fetch and NetInfo for connectivity status.
+ * React Native Network Client implementing `NetworkClient` from `@sudobility/types`.
+ *
+ * Uses React Native's built-in `fetch` with configurable timeout and `AbortController`
+ * for request cancellation.
+ *
+ * @example
+ * ```ts
+ * const client = new RNNetworkClient(15000); // 15s timeout
+ * const response = await client.get<User[]>('https://api.example.com/users');
+ * if (response.ok) {
+ *   console.log(response.data);
+ * }
+ * ```
  */
 export class RNNetworkClient implements NetworkClient {
   private defaultTimeout: number;
 
+  /**
+   * Create a new RNNetworkClient.
+   *
+   * @param defaultTimeout - Default request timeout in milliseconds. Defaults to 30000 (30s).
+   */
   constructor(defaultTimeout: number = 30000) {
     this.defaultTimeout = defaultTimeout;
   }
 
+  /**
+   * Make an HTTP request with automatic timeout handling.
+   *
+   * @typeParam T - The expected response data type.
+   * @param url - The request URL.
+   * @param options - Optional request options (method, headers, body, timeout).
+   * @returns A `NetworkResponse` containing the parsed response data and metadata.
+   * @throws NetworkError if the request times out (status 408).
+   * @throws Error for other network failures.
+   *
+   * @example
+   * ```ts
+   * const res = await client.request<{ id: string }>('/api/item', {
+   *   method: 'POST',
+   *   body: '{"name":"test"}',
+   *   headers: { 'Content-Type': 'application/json' },
+   * });
+   * ```
+   */
   async request<T = unknown>(
     url: string,
     options?: Optional<NetworkRequestOptions>
@@ -81,6 +144,14 @@ export class RNNetworkClient implements NetworkClient {
     }
   }
 
+  /**
+   * Make an HTTP GET request.
+   *
+   * @typeParam T - The expected response data type.
+   * @param url - The request URL.
+   * @param options - Optional request options (headers, timeout).
+   * @returns A `NetworkResponse` containing the parsed response data.
+   */
   async get<T = unknown>(
     url: string,
     options?: Optional<Omit<NetworkRequestOptions, 'method' | 'body'>>
@@ -88,6 +159,15 @@ export class RNNetworkClient implements NetworkClient {
     return this.request<T>(url, { ...options, method: 'GET' });
   }
 
+  /**
+   * Make an HTTP POST request.
+   *
+   * @typeParam T - The expected response data type.
+   * @param url - The request URL.
+   * @param body - Optional request body (objects are JSON-serialized).
+   * @param options - Optional request options (headers, timeout).
+   * @returns A `NetworkResponse` containing the parsed response data.
+   */
   async post<T = unknown>(
     url: string,
     body?: Optional<unknown>,
@@ -101,6 +181,15 @@ export class RNNetworkClient implements NetworkClient {
     });
   }
 
+  /**
+   * Make an HTTP PUT request.
+   *
+   * @typeParam T - The expected response data type.
+   * @param url - The request URL.
+   * @param body - Optional request body (objects are JSON-serialized).
+   * @param options - Optional request options (headers, timeout).
+   * @returns A `NetworkResponse` containing the parsed response data.
+   */
   async put<T = unknown>(
     url: string,
     body?: Optional<unknown>,
@@ -114,6 +203,14 @@ export class RNNetworkClient implements NetworkClient {
     });
   }
 
+  /**
+   * Make an HTTP DELETE request.
+   *
+   * @typeParam T - The expected response data type.
+   * @param url - The request URL.
+   * @param options - Optional request options (headers, timeout).
+   * @returns A `NetworkResponse` containing the parsed response data.
+   */
   async delete<T = unknown>(
     url: string,
     options?: Optional<Omit<NetworkRequestOptions, 'method' | 'body'>>
@@ -162,7 +259,21 @@ export class RNNetworkClient implements NetworkClient {
 }
 
 /**
- * Network error with status code.
+ * Network error with HTTP status code and status text.
+ *
+ * Thrown by `RNNetworkClient` when a request times out or encounters
+ * an HTTP-level error.
+ *
+ * @example
+ * ```ts
+ * try {
+ *   await client.get('/api/data');
+ * } catch (err) {
+ *   if (err instanceof NetworkError) {
+ *     console.log(err.status, err.statusText);
+ *   }
+ * }
+ * ```
  */
 export class NetworkError extends Error {
   constructor(
@@ -177,7 +288,22 @@ export class NetworkError extends Error {
 
 /**
  * React Native Network Service with connectivity monitoring.
- * Implements PlatformNetwork from @sudobility/di.
+ *
+ * Implements `PlatformNetwork` from `@sudobility/di/interfaces`.
+ * Uses `@react-native-community/netinfo` for online/offline status detection.
+ * Initialization of network monitoring is deferred until first use via
+ * `ensureInitialized()` to avoid native module issues at import time.
+ *
+ * @example
+ * ```ts
+ * const service = new RNNetworkService();
+ * console.log(service.isOnline()); // true
+ *
+ * const unsubscribe = service.watchNetworkStatus((isOnline) => {
+ *   console.log('Network status:', isOnline);
+ * });
+ * // Later: unsubscribe();
+ * ```
  */
 export class RNNetworkService implements PlatformNetwork {
   private isOnlineState: boolean = true;
@@ -229,10 +355,24 @@ export class RNNetworkService implements PlatformNetwork {
     this.listeners.forEach((listener) => listener(isOnline));
   }
 
+  /**
+   * Make a raw HTTP request using `fetch`.
+   *
+   * @param url - The request URL.
+   * @param options - Optional `RequestInit` options.
+   * @returns The raw `Response` object.
+   */
   async request(url: string, options?: RequestInit): Promise<Response> {
     return fetch(url, options);
   }
 
+  /**
+   * Make an HTTP GET request.
+   *
+   * @param url - The request URL.
+   * @param options - Optional headers and abort signal.
+   * @returns The raw `Response` object.
+   */
   async get(
     url: string,
     options?: { headers?: Record<string, string>; signal?: AbortSignal }
@@ -243,6 +383,14 @@ export class RNNetworkService implements PlatformNetwork {
     return this.request(url, init);
   }
 
+  /**
+   * Make an HTTP POST request.
+   *
+   * @param url - The request URL.
+   * @param body - Optional request body (objects are JSON-serialized).
+   * @param options - Optional headers and abort signal.
+   * @returns The raw `Response` object.
+   */
   async post(
     url: string,
     body?: unknown,
@@ -255,6 +403,14 @@ export class RNNetworkService implements PlatformNetwork {
     return this.request(url, init);
   }
 
+  /**
+   * Make an HTTP PUT request.
+   *
+   * @param url - The request URL.
+   * @param body - Optional request body (objects are JSON-serialized).
+   * @param options - Optional headers and abort signal.
+   * @returns The raw `Response` object.
+   */
   async put(
     url: string,
     body?: unknown,
@@ -267,6 +423,13 @@ export class RNNetworkService implements PlatformNetwork {
     return this.request(url, init);
   }
 
+  /**
+   * Make an HTTP DELETE request.
+   *
+   * @param url - The request URL.
+   * @param options - Optional headers and abort signal.
+   * @returns The raw `Response` object.
+   */
   async delete(
     url: string,
     options?: { headers?: Record<string, string>; signal?: AbortSignal }
@@ -277,11 +440,34 @@ export class RNNetworkService implements PlatformNetwork {
     return this.request(url, init);
   }
 
+  /**
+   * Check if the device is currently online.
+   *
+   * Triggers deferred initialization on first call.
+   *
+   * @returns `true` if the device is connected to the internet.
+   */
   isOnline(): boolean {
     this.ensureInitialized();
     return this.isOnlineState;
   }
 
+  /**
+   * Subscribe to network status changes.
+   *
+   * Triggers deferred initialization on first call.
+   *
+   * @param callback - Function invoked with `true` (online) or `false` (offline) on status changes.
+   * @returns An unsubscribe function to remove the listener.
+   *
+   * @example
+   * ```ts
+   * const unsub = service.watchNetworkStatus((online) => {
+   *   console.log('Online:', online);
+   * });
+   * // Later: unsub();
+   * ```
+   */
   watchNetworkStatus(callback: (isOnline: boolean) => void): () => void {
     this.ensureInitialized();
     this.listeners.add(callback);
@@ -293,7 +479,9 @@ export class RNNetworkService implements PlatformNetwork {
   }
 
   /**
-   * Get detailed network information.
+   * Get detailed network information from NetInfo.
+   *
+   * @returns The `NetInfoState` object, or `null` if NetInfo is unavailable.
    */
   async getNetworkInfo(): Promise<NetInfoState | null> {
     const netInfo = getNetInfo();
@@ -302,7 +490,7 @@ export class RNNetworkService implements PlatformNetwork {
   }
 
   /**
-   * Cleanup resources.
+   * Cleanup resources: remove native listeners and clear subscriber set.
    */
   dispose(): void {
     if (this.unsubscribe) {
@@ -310,6 +498,7 @@ export class RNNetworkService implements PlatformNetwork {
       this.unsubscribe = null;
     }
     this.listeners.clear();
+    this.initialized = false;
   }
 }
 

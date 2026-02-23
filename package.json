@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,7 +24,7 @@
     "lint": "bunx eslint src",
     "lint:fix": "bunx eslint src --fix",
     "format": "bunx prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
-    "test": "echo 'No tests yet'",
+    "test": "bunx vitest run",
     "prepublishOnly": "bun run build"
   },
   "peerDependencies": {
