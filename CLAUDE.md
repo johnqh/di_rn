@@ -240,8 +240,8 @@ import { rnNavigationService } from '@sudobility/di_rn';
 |---------|---------|---------|
 | `@sudobility/di` | ^1.5.36 | Interfaces this package implements |
 | `@sudobility/types` | ^1.9.51 | Shared types (`Optional`, `InfoType`, `NetworkClient`) |
-| `react` | ^19.2.3 | React core |
-| `react-native` | ^0.83.1 | RN runtime + Appearance API |
+| `react` | ^18.0.0 \|\| ^19.0.0 | React core |
+| `react-native` | >=0.72.0 | RN runtime + Appearance API |
 | `react-native-toast-message` | ^2.3.3 | Toast display for InfoBanner |
 
 ### Optional Peers
