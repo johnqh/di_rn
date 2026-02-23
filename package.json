@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
   "main": "./dist/index.js",
@@ -46,7 +46,7 @@
     "@react-navigation/native": "^7.1.28",
     "@sudobility/components-rn": "^1.0.23",
     "@sudobility/di": "^1.5.40",
-    "@sudobility/subscription_lib": "^0.0.17",
+    "@sudobility/subscription_lib": "^0.0.18",
     "@sudobility/types": "^1.9.54",
     "@types/node": "^22.0.0",
     "@types/react": "^19.2.8",
