@@ -96,19 +96,17 @@ export {
   rnNavigationService,
 } from './navigation/navigation.rn.js';
 
-// Info service (toast messages)
+// Info service (banner messages)
 export {
   RNInfoService,
   createRNInfoService,
   initializeInfoService,
   getInfoService,
   resetInfoService,
-  mapInfoTypeToToastType,
   type BannerState,
   type BannerStateListener,
   InfoBanner,
   useInfoBanner,
-  type InfoBannerProps,
 } from './info/index.js';
 
 // Initialize (centralized app initialization)

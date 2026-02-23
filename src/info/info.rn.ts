@@ -1,10 +1,10 @@
 /**
- * React Native implementation of InfoInterface using react-native-toast-message
+ * React Native implementation of InfoInterface using Banner from @sudobility/components-rn
  *
  * This service manages its own banner state internally and provides
  * a hook for React components to subscribe to state changes.
  *
- * @ai-context RN InfoInterface implementation using react-native-toast-message
+ * @ai-context RN InfoInterface implementation using Banner component
  * @ai-pattern Singleton service with React subscription
  * @ai-usage Use singleton and render InfoBanner component in app root
  *
@@ -55,26 +55,7 @@ export interface BannerState {
 export type BannerStateListener = (state: BannerState) => void;
 
 /**
- * Map InfoType to react-native-toast-message types
- */
-export function mapInfoTypeToToastType(
-  type: InfoType
-): 'success' | 'error' | 'info' {
-  switch (type) {
-    case InfoType.SUCCESS:
-      return 'success';
-    case InfoType.ERROR:
-      return 'error';
-    case InfoType.WARNING:
-      return 'error'; // Toast message doesn't have warning, use error styling
-    case InfoType.INFO:
-    default:
-      return 'info';
-  }
-}
-
-/**
- * React Native implementation of InfoInterface using react-native-toast-message
+ * React Native implementation of InfoInterface
  *
  * Manages banner state internally and notifies subscribers of changes.
  *

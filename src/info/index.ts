@@ -2,7 +2,7 @@
  * Info module exports for React Native
  *
  * Provides RNInfoService and InfoBanner for displaying
- * info messages using react-native-toast-message.
+ * info messages using Banner from @sudobility/components-rn.
  */
 
 // Service
@@ -12,14 +12,9 @@ export {
   initializeInfoService,
   getInfoService,
   resetInfoService,
-  mapInfoTypeToToastType,
   type BannerState,
   type BannerStateListener,
 } from './info.rn.js';
 
 // React components and hooks
-export {
-  InfoBanner,
-  useInfoBanner,
-  type InfoBannerProps,
-} from './InfoBanner.js';
+export { InfoBanner, useInfoBanner } from './InfoBanner.js';
