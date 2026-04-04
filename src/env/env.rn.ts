@@ -5,40 +5,27 @@ import type {
   FirebaseConfig,
 } from '@sudobility/di/interfaces';
 import type { Optional } from '@sudobility/types';
-// Lazily load react-native-config so the package can still be imported,
-// but fail loudly if the native module is missing. The app depends on it.
-let Config: Record<string, string | undefined> = {};
-try {
-  // Prefer default export but support both shapes.
-
-  const maybeConfig = require('react-native-config');
-  Config = (maybeConfig?.default ?? maybeConfig ?? {}) as Record<
-    string,
-    string | undefined
-  >;
-} catch (error) {
-  throw new Error(
-    `[di_rn] react-native-config not available; cannot initialize env provider: ${error}`
-  );
-}
 
 /**
- * React Native environment provider using react-native-config.
- * Environment variables are defined in .env files and accessed via Config.
+ * React Native environment provider using process.env.
+ * Environment variables are injected by Expo's babel plugin (for
+ * EXPO_PUBLIC_* keys) or by the Metro bundler at bundle time.
  */
 export class RNEnvProvider implements EnvProvider {
   get<K extends keyof EnvironmentVariables>(
     key: K,
     defaultValue?: Optional<string>
   ): Optional<EnvironmentVariables[K] | string> {
-    const value = Config[key as string];
+    const value = (process.env as Record<string, string | undefined>)[
+      key as string
+    ];
     return (value ?? defaultValue ?? null) as Optional<
       EnvironmentVariables[K] | string
     >;
   }
 
   getAll(): EnvironmentVariables {
-    return Config as unknown as EnvironmentVariables;
+    return process.env as unknown as EnvironmentVariables;
   }
 
   isDevelopment(): boolean {
