@@ -27,7 +27,7 @@ src/
 │   ├── network.rn.ts                # RNNetworkClient (fetch+timeout), RNNetworkService (NetInfo)
 │   └── network-singleton.ts         # Singleton management for client + service
 ├── env/
-│   └── env.rn.ts                    # RNEnvProvider (react-native-config), createRNAppConfig()
+│   └── env.rn.ts                    # RNEnvProvider (process.env), createRNAppConfig()
 ├── theme/
 │   └── theme.rn.ts                  # RNThemeService (Appearance API), font size support
 ├── notification/
@@ -56,7 +56,7 @@ tests/
 | Serialized Storage | `RNSerializedStorageService` | async-storage | (custom) | JSON object serialize/deserialize to storage |
 | Network Client | `RNNetworkClient` | `fetch` | `NetworkClient` | HTTP GET/POST/PUT/DELETE with timeout + AbortController |
 | Network Service | `RNNetworkService` | `netinfo` | `PlatformNetwork` | Online/offline monitoring, network status subscriptions |
-| Environment | `RNEnvProvider` | `react-native-config` | `EnvProvider` | Env variable access, dev/prod/test detection via `__DEV__` |
+| Environment | `RNEnvProvider` | `process.env` | `EnvProvider` | Env variable access, dev/prod/test detection via `__DEV__` |
 | App Config | `createRNAppConfig()` | (wraps RNEnvProvider) | `AppConfig` | Structured config (WildDuck, Indexer, Firebase, WalletConnect) |
 | Theme | `RNThemeService` | `Appearance` API | `PlatformTheme` | Light/dark/system theme, font size scaling (small/medium/large) |
 | Notifications | `RNNotificationService` | `@notifee/react-native` | `NotificationService` | Local notifications, permissions, badges, Android channels |
@@ -116,7 +116,7 @@ function getAsyncStorage(): AsyncStorageStatic | null {
 }
 ```
 
-Used for: AsyncStorage, NetInfo, Notifee, Appearance, toast-message. Exception: `env.rn.ts` throws on load if `react-native-config` is missing.
+Used for: AsyncStorage, NetInfo, Notifee, Appearance, toast-message.
 
 ### Deferred Initialization
 
@@ -257,7 +257,7 @@ import { rnNavigationService } from '@sudobility/di_rn';
 | `@react-native-community/netinfo` | RNNetworkService |
 | `@notifee/react-native` | RNNotificationService |
 | `@react-navigation/native` | RNNavigationService |
-| `react-native-config` | RNEnvProvider (**required** -- throws if missing) |
+| `process.env` | RNEnvProvider (environment variable access) |
 | `@react-native-firebase/analytics` | Re-exported analytics |
 
 ### Key Dev Dependencies
@@ -266,7 +266,7 @@ import { rnNavigationService } from '@sudobility/di_rn';
 
 ## Environment Variables
 
-Read by `RNEnvProvider` via `react-native-config`. Uses `VITE_` prefix for web counterpart compatibility:
+Read by `RNEnvProvider` via `process.env`. Uses `VITE_` prefix for web counterpart compatibility:
 
 - `VITE_WILDDUCK_URL`, `VITE_INDEXER_URL` -- Backend URLs
 - `VITE_WALLETCONNECT_PROJECT_ID`, `VITE_REVENUECAT_API_KEY`, `VITE_PRIVY_APP_ID`

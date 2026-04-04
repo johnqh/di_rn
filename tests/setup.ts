@@ -31,15 +31,6 @@ vi.mock('@react-native-community/netinfo', () => ({
   },
 }));
 
-// Mock react-native-config
-vi.mock('react-native-config', () => ({
-  default: {
-    VITE_INDEXER_URL: 'https://test-indexer.example.com',
-    VITE_WILDDUCK_URL: 'https://test-wildduck.example.com',
-    VITE_WALLETCONNECT_PROJECT_ID: 'test-project-id',
-  },
-}));
-
 // Mock @notifee/react-native
 vi.mock('@notifee/react-native', () => ({
   default: {

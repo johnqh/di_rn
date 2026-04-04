@@ -26,7 +26,6 @@ npm install @react-native-community/netinfo
 npm install @react-navigation/native
 npm install @react-native-firebase/analytics
 npm install @notifee/react-native
-npm install react-native-config
 ```
 
 Follow the installation instructions for each native dependency in their respective documentation.
