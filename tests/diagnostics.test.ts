@@ -21,7 +21,6 @@ describe('checkNativeModules', () => {
     expect(names).toContain('@react-native-community/netinfo');
     expect(names).toContain('@notifee/react-native');
     expect(names).toContain('react-native');
-    expect(names).toContain('react-native-config');
   });
 
   it('should generate a summary string', () => {

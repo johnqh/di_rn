@@ -53,10 +53,6 @@ const NATIVE_MODULES = [
     description: 'React Native core (Appearance API for RNThemeService)',
   },
   {
-    name: 'react-native-config',
-    description: 'Config (RNEnvProvider)',
-  },
-  {
     name: '@react-native-firebase/analytics',
     description: 'Firebase Analytics (RNFirebaseAnalyticsService)',
   },
