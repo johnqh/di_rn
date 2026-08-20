@@ -1,5 +1,10 @@
 # di_rn - AI Development Guide
 
+> **Git policy — never auto-commit or auto-push.** Leave your work in the working tree.
+> Run `git commit`, `git push`, `gh pr create`, or `scripts/push_all.sh` **only when the user
+> explicitly asks in that turn**. Approval for an earlier change does not carry forward, and
+> finishing a task is not permission to commit it.
+
 ## Overview
 
 **Package**: `@sudobility/di_rn`
@@ -280,3 +285,7 @@ The barrel `src/index.ts` re-exports Firebase and analytics services for consume
 - `RNFirebaseService`, `RNFirebaseAnalyticsService`, `createRNFirebaseService`
 - `getFirebaseService`, `initializeFirebaseService`, `resetFirebaseService`
 - `RNAnalyticsClient`, `getAnalyticsClient`, `initializeAnalyticsClient`, `resetAnalyticsClient`, `rnAnalyticsClient`
+
+## Git Workflow
+
+- Do not use feature branches for code changes. Always stay on the current branch.
