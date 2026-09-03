@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/di_rn",
-  "version": "0.1.127",
+  "version": "0.1.128",
   "description": "React Native implementations of dependency injection services for Sudobility",
   "type": "module",
   "main": "./dist/index.js",
@@ -32,7 +32,7 @@
     "@sudobility/types": "^1.9.67",
     "react": "^18.0.0 || ^19.0.0",
     "react-native": ">=0.72.0",
-    "@sudobility/components-rn": "^1.0.96"
+    "@sudobility/components-rn": "^1.0.97"
   },
   "peerDependenciesMeta": {
     "@sudobility/subscription_lib": {
@@ -44,7 +44,7 @@
     "@notifee/react-native": "^9.1.8",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/native": "^7.1.28",
-    "@sudobility/components-rn": "^1.0.96",
+    "@sudobility/components-rn": "^1.0.97",
     "@sudobility/di": "^1.5.63",
     "@sudobility/subscription_lib": "^0.0.48",
     "@sudobility/types": "^1.9.67",
