@@ -24,7 +24,7 @@
     "lint": "bunx eslint src",
     "lint:fix": "bunx eslint src --fix",
     "format": "bunx prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
-    "test": "bunx vitest run",
+    "test:unit": "bunx vitest run",
     "prepublishOnly": "bun run build"
   },
   "peerDependencies": {
