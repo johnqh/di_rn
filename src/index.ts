@@ -136,6 +136,15 @@ export {
   resetFirebaseService,
 } from '@sudobility/di/rn';
 
+// GA4 Measurement Protocol analytics, for the desktops (macOS, Windows): wrap
+// it in FirebaseAnalyticsService as the phones wrap native analytics
+export {
+  MeasurementProtocolAnalyticsService,
+  MEASUREMENT_PROTOCOL_CLIENT_ID_KEY,
+  type MeasurementProtocolConfig,
+  type MeasurementProtocolStorage,
+} from '@sudobility/di/rn';
+
 // Re-export the low-level analytics client from @sudobility/di/rn
 export {
   RNAnalyticsClient,
